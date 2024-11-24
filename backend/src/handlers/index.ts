@@ -8,20 +8,9 @@ import {
   sendErrors,
   sendSuccess,
 } from "../utils/handleResponse.utils";
-import { hashPassword } from "../utils/auth.utils";
-import { validationResult } from "express-validator";
+import { checkPassword, hashPassword } from "../utils/auth.utils";
 
 export const createAccount = async (req: Request, res: Response) => {
-  let errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return sendErrors(
-      res,
-      errors.array().map((error) => error.msg),
-      HttpStatus.BAD_REQUEST
-    );
-  }
-
   const { email, password } = req.body;
 
   try {
@@ -58,5 +47,23 @@ export const createAccount = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  console.log("Desde Login");
+  const { email, password } = req.body;
+
+  try {
+    //? Comprobar que el usuario este registrado
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return sendError(res, "El Usuario No Existe", HttpStatus.NOT_FOUND);
+    }
+
+    //? Comprobar que la contraseña sea correcta
+    const isPasswordCorrect = await checkPassword(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return sendError(res, "Password Incorrecto", HttpStatus.UNAUTHORIZED);
+    }
+  } catch (error) {
+    handleAndSendError(res, error);
+  }
 };
