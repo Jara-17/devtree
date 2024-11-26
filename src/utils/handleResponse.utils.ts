@@ -30,7 +30,6 @@ export const sendSuccess = (
   data?: unknown
 ): void => {
   res.status(status).json({
-    error: false,
     message,
     data,
   });
@@ -50,8 +49,7 @@ export const sendError = (
 ): void => {
   const error = new Error(message);
   res.status(status).json({
-    error: true,
-    message: error.message,
+    error: error.message,
   });
 };
 
@@ -67,8 +65,7 @@ export const sendErrors = (
   status: HttpStatus = HttpStatus.BAD_REQUEST
 ): void => {
   res.status(status).json({
-    error: true,
-    message: errors,
+    errors,
   });
 };
 
@@ -76,11 +73,17 @@ export const sendErrors = (
  * Maneja errores genéricos y envía una respuesta con el objeto `Response` de Express.
  * @param res Objeto `Response` de Express
  * @param error Error capturado
+ * @param message Mensaje personalizado opcional para el cliente
+ * @param status Código de estado HTTP (opcional, por defecto 500)
  */
-export const handleAndSendError = (res: Response, error: Error): void => {
-  console.error(bold.bgRed.white(`[ERROR] ${error.message}`));
-  res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-    error: true,
-    message: error.message,
+export const handleAndSendError = (
+  res: Response,
+  error: Error,
+  message?: string,
+  status: number = HttpStatus.INTERNAL_SERVER_ERROR
+): void => {
+  console.error(bold.bgRed.white(`[ERROR] ${error}`));
+  res.status(status).json({
+    error: message || error.message,
   });
 };
