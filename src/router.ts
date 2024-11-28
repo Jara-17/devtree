@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { createAccount, getUser, login } from "./handlers";
+import {
+  createAccount,
+  getUser,
+  login,
+  updateProfile,
+  uploadImage,
+} from "./handlers";
 import { body } from "express-validator";
 import { handleInputErrors } from "./middlewares/validation.middleware";
 import { authenticate } from "./middlewares/auth.middleware";
@@ -31,5 +37,17 @@ router.post(
 );
 
 router.get("/user", authenticate, getUser);
+router.patch(
+  "/user",
+  body("handle").notEmpty().withMessage("El Handle no pude estar vacio"),
+  body("description")
+    .notEmpty()
+    .withMessage("La Descripción no pude estar vacia"),
+  handleInputErrors,
+  authenticate,
+  updateProfile
+);
+
+router.post("/user/image", authenticate, uploadImage);
 
 export default router;
