@@ -136,3 +136,39 @@ export const uploadImage = async (req: Request, res: Response) => {
     handleAndSendError(res, error, "Hubo un Error");
   }
 };
+
+export const getUserByHandle = async (req: Request, res: Response) => {
+  try {
+    const { handle } = req.params;
+    const user = await User.findOne({ handle }).select(
+      "-_id -__v -email -password"
+    );
+
+    if (!user) {
+      return sendError(res, "Usuario No Encontrado", HttpStatus.NOT_FOUND);
+    }
+
+    sendSuccess(res, "Usuario Encontrado", HttpStatus.OK, user);
+  } catch (error) {
+    handleAndSendError(res, error, "Hubo un Error");
+  }
+};
+
+export const searchByHandle = async (req: Request, res: Response) => {
+  try {
+    const { handle } = req.body;
+    const userExist = await User.findOne({ handle });
+
+    if (userExist) {
+      return sendError(
+        res,
+        `${handle} ya está registrado`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    sendSuccess(res, `${handle} está disponible`, HttpStatus.OK);
+  } catch (error) {
+    handleAndSendError(res, error, "Hubo un Error");
+  }
+};

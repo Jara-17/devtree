@@ -2,7 +2,9 @@ import { Router } from "express";
 import {
   createAccount,
   getUser,
+  getUserByHandle,
   login,
+  searchByHandle,
   updateProfile,
   uploadImage,
 } from "./handlers";
@@ -40,14 +42,19 @@ router.get("/user", authenticate, getUser);
 router.patch(
   "/user",
   body("handle").notEmpty().withMessage("El Handle no pude estar vacio"),
-  body("description")
-    .notEmpty()
-    .withMessage("La Descripción no pude estar vacia"),
   handleInputErrors,
   authenticate,
   updateProfile
 );
 
 router.post("/user/image", authenticate, uploadImage);
+
+router.get("/:handle", getUserByHandle);
+router.post(
+  "/search",
+  body("handle").notEmpty().withMessage("El Handle no pude estar vacio"),
+  handleInputErrors,
+  searchByHandle
+);
 
 export default router;
